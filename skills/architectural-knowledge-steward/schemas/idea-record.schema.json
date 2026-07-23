@@ -1,0 +1,274 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/marvelousempire/standard-mcp-stack/schemas/idea-record.schema.json",
+  "title": "Architectural Knowledge Steward Atomic Record",
+  "description": "Canonical schema for one atomic idea, intent, purpose, feature, rule, constraint, question, decision, task, or evidence item.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "record_type",
+    "title",
+    "statement",
+    "source",
+    "status",
+    "authority",
+    "created_at",
+    "relationships",
+    "placement",
+    "validation"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^AKS-[0-9]{4}-[0-9]{4,}$"
+    },
+    "record_type": {
+      "type": "string",
+      "enum": [
+        "idea",
+        "intent",
+        "purpose",
+        "feature",
+        "requirement",
+        "rule",
+        "constraint",
+        "analogy",
+        "decision",
+        "assumption",
+        "question",
+        "risk",
+        "dependency",
+        "task",
+        "evidence"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 160
+    },
+    "statement": {
+      "type": "string",
+      "minLength": 1
+    },
+    "normalized_statement": {
+      "type": "string"
+    },
+    "intent": {
+      "type": ["string", "null"]
+    },
+    "purpose": {
+      "type": ["string", "null"]
+    },
+    "rationale": {
+      "type": ["string", "null"]
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_type", "speaker", "captured_text"],
+      "properties": {
+        "source_type": {
+          "type": "string",
+          "enum": ["conversation", "document", "issue", "code", "meeting", "external_reference"]
+        },
+        "speaker": {
+          "type": "string"
+        },
+        "captured_text": {
+          "type": "string"
+        },
+        "conversation_id": {
+          "type": ["string", "null"]
+        },
+        "message_id": {
+          "type": ["string", "null"]
+        },
+        "source_uri": {
+          "type": ["string", "null"]
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "captured",
+        "proposed",
+        "approved",
+        "scheduled",
+        "implemented",
+        "validated",
+        "rejected",
+        "superseded",
+        "deprecated"
+      ]
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requested_by", "approval_required", "approval_state"],
+      "properties": {
+        "requested_by": {
+          "type": "string"
+        },
+        "approval_required": {
+          "type": "boolean"
+        },
+        "approved_by": {
+          "type": ["string", "null"]
+        },
+        "approval_state": {
+          "type": "string",
+          "enum": ["not_required", "pending", "approved", "denied"]
+        },
+        "authority_scope": {
+          "type": "array",
+          "items": {"type": "string"},
+          "uniqueItems": true
+        }
+      }
+    },
+    "change_class": {
+      "type": "string",
+      "enum": ["editorial", "additive", "behavioral", "structural", "governance", "breaking"]
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["critical", "high", "medium", "low", "unspecified"],
+      "default": "unspecified"
+    },
+    "relationships": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["parent_ids", "related_ids", "depends_on", "conflicts_with", "supersedes"],
+      "properties": {
+        "parent_ids": {
+          "type": "array",
+          "items": {"type": "string"},
+          "uniqueItems": true
+        },
+        "related_ids": {
+          "type": "array",
+          "items": {"type": "string"},
+          "uniqueItems": true
+        },
+        "depends_on": {
+          "type": "array",
+          "items": {"type": "string"},
+          "uniqueItems": true
+        },
+        "conflicts_with": {
+          "type": "array",
+          "items": {"type": "string"},
+          "uniqueItems": true
+        },
+        "supersedes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "uniqueItems": true
+        }
+      }
+    },
+    "placement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository", "artifact_type", "proposed_path", "placement_reason"],
+      "properties": {
+        "repository": {
+          "type": "string"
+        },
+        "artifact_type": {
+          "type": "string",
+          "enum": [
+            "architecture_document",
+            "governance_document",
+            "schema",
+            "decision_record",
+            "issue",
+            "implementation",
+            "test",
+            "diagram",
+            "screenshot",
+            "glossary_entry",
+            "registry_record",
+            "other"
+          ]
+        },
+        "proposed_path": {
+          "type": "string"
+        },
+        "placement_reason": {
+          "type": "string"
+        },
+        "existing_artifact": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "implementation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "work_order_ids": {
+          "type": "array",
+          "items": {"type": "string"},
+          "uniqueItems": true
+        },
+        "affected_paths": {
+          "type": "array",
+          "items": {"type": "string"},
+          "uniqueItems": true
+        },
+        "migration_required": {
+          "type": "boolean"
+        },
+        "rollback_plan": {
+          "type": ["string", "null"]
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["evidence_type", "location"],
+        "properties": {
+          "evidence_type": {
+            "type": "string",
+            "enum": ["commit", "pull_request", "test", "screenshot", "diagram", "document", "log", "receipt", "other"]
+          },
+          "location": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_valid", "atomicity_checked", "duplicate_checked", "conflict_checked", "evidence_complete"],
+      "properties": {
+        "schema_valid": {"type": "boolean"},
+        "atomicity_checked": {"type": "boolean"},
+        "duplicate_checked": {"type": "boolean"},
+        "conflict_checked": {"type": "boolean"},
+        "evidence_complete": {"type": "boolean"},
+        "validation_notes": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": ["string", "null"],
+      "format": "date-time"
+    }
+  }
+}
