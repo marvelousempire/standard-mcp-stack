@@ -1,0 +1,74 @@
+host:
+  name: nephew
+  version: 0.1.0
+  environment: development
+
+governance:
+  identity_file: governance/identity.yaml
+  bylaws_file: governance/bylaws.md
+  rules_directory: governance/rules
+  skills_directory: skills
+  prompts_directory: prompts
+
+security:
+  default_policy: deny
+  require_approval_for:
+    - destructive_write
+    - external_publish
+    - financial_transaction
+  secret_provider: os_keychain
+  audit_log: logs/audit.jsonl
+
+limits:
+  max_parallel_work_orders: 4
+  default_request_timeout_seconds: 60
+  max_cost_usd_per_mission: 2.00
+
+servers:
+  github:
+    enabled: true
+    transport: stdio
+    command: python
+    args:
+      - -m
+      - servers.github
+    environment_from_secrets:
+      GITHUB_TOKEN: github/token
+    policy:
+      allowed_tools:
+        - list_repositories
+        - read_repository
+        - list_issues
+      approval_required_tools:
+        - create_issue
+        - update_file
+
+  wordpress:
+    enabled: false
+    transport: http
+    url: https://mcp.example.internal/wordpress
+    headers_from_secrets:
+      Authorization: wordpress/bearer_token
+    policy:
+      allowed_tools:
+        - list_posts
+        - get_post
+      approval_required_tools:
+        - create_post
+        - update_post
+        - publish_post
+
+  local_nas:
+    enabled: true
+    transport: stdio
+    command: python
+    args:
+      - -m
+      - servers.nas
+    environment:
+      NAS_ROOT: /Volumes/AI-Lab
+    policy:
+      allowed_roots:
+        - /Volumes/AI-Lab/knowledge
+        - /Volumes/AI-Lab/models
+      read_only: true
